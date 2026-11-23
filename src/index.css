@@ -1,0 +1,749 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&family=Great+Vibes&display=swap");
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color: #334a55;
+    font-family: "DM Sans", sans-serif;
+    font-synthesis: none;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:focus-visible {
+    outline: 3px solid rgba(39, 74, 86, 0.65);
+    outline-offset: 4px;
+  }
+}
+
+.winter-scene {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(232, 247, 249, 0.72), rgba(183, 218, 228, 0.5)),
+    radial-gradient(ellipse at 18% 20%, #dff2f2 0 18%, transparent 50%),
+    radial-gradient(ellipse at 78% 36%, #b5d9e4 0 12%, transparent 46%), #c7e3e9;
+}
+
+.winter-scene::after {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  content: "";
+  opacity: 0.2;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+.watercolor {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(24px);
+  opacity: 0.27;
+  pointer-events: none;
+}
+
+.wash-one {
+  width: 46vw;
+  height: 38vw;
+  top: -12vw;
+  left: -7vw;
+  background: #73b7cc;
+  transform: rotate(-12deg);
+}
+
+.wash-two {
+  width: 50vw;
+  height: 34vw;
+  right: -12vw;
+  bottom: -7vw;
+  background: #6fa9bf;
+  transform: rotate(9deg);
+}
+
+.snow {
+  position: fixed;
+  inset: -20px 0 0;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.snow i {
+  position: absolute;
+  top: -12px;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 48% 52% 46% 54%;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 1px 0 rgba(79, 119, 133, 0.25);
+  animation: snowfall linear infinite;
+}
+
+@keyframes snowfall {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(22px, 50vh, 0) rotate(160deg);
+  }
+  100% {
+    transform: translate3d(-12px, 105vh, 0) rotate(320deg);
+    opacity: 0.2;
+  }
+}
+
+.home-view {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 42px 20px 30px;
+}
+
+.scene-header {
+  position: relative;
+  z-index: 3;
+  max-width: 620px;
+  text-align: center;
+}
+
+.kicker,
+.eyebrow {
+  margin: 0 0 5px;
+  color: #536e77;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.scene-header h1,
+.day-copy h1 {
+  margin: 0;
+  color: #294953;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2.8rem, 5.6vw, 4.4rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+}
+
+.scene-header h1 {
+  color: #9f302f;
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(3.7rem, 7vw, 5.6rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  text-shadow: 1px 2px 0 rgba(255, 255, 255, 0.65);
+}
+
+.subtitle {
+  max-width: 460px;
+  margin: 12px auto 0;
+  color: #53717b;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.08rem;
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.house-wrap {
+  position: relative;
+  width: min(610px, 84vw);
+  margin-top: 82px;
+}
+
+.roof {
+  position: absolute;
+  z-index: 1;
+  width: 110%;
+  height: 172px;
+  top: -108px;
+  left: -5%;
+  border: 3px solid #2f3f41;
+  border-bottom-width: 9px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 18px, rgba(230, 238, 234, 0.07) 19px 20px),
+    repeating-linear-gradient(90deg, transparent 0 38px, rgba(230, 238, 234, 0.045) 39px 40px),
+    #35484b;
+  clip-path: polygon(9% 0, 91% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(3px 5px 0 rgba(51, 78, 82, 0.18));
+}
+
+.roof::after {
+  position: absolute;
+  width: 100%;
+  height: 13px;
+  bottom: 0;
+  left: 0;
+  border-top: 2px solid #e9e3d7;
+  background: #344b4d;
+  content: "";
+}
+
+.roof-snow {
+  position: absolute;
+  width: 84%;
+  height: 15px;
+  top: -3px;
+  left: 8%;
+  border-radius: 50% 45% 40% 35%;
+  background: #f5f8f4;
+  transform: rotate(-0.5deg);
+  box-shadow: 0 2px 0 rgba(70, 94, 96, 0.25);
+}
+
+.chimney {
+  position: absolute;
+  z-index: 4;
+  width: 50px;
+  height: 108px;
+  top: -100px;
+  right: 15%;
+  border: 3px solid #4c5b5c;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 12px, rgba(255, 225, 201, 0.48) 13px 15px),
+    repeating-linear-gradient(90deg, transparent 0 20px, rgba(255, 225, 201, 0.34) 21px 23px),
+    #93423d;
+  box-shadow: 3px 3px 0 rgba(53, 60, 58, 0.2);
+  transform: rotate(1deg);
+}
+
+.chimney::before {
+  position: absolute;
+  width: 62px;
+  height: 14px;
+  top: -9px;
+  left: -9px;
+  border: 3px solid #4c5b5c;
+  border-radius: 4px 3px 2px 3px;
+  background: #f5f6f1;
+  content: "";
+}
+
+.house {
+  position: relative;
+  z-index: 2;
+  border: 3px solid #485b5d;
+  border-top: 10px solid #354c4e;
+  border-radius: 3px 2px 5px 3px;
+  background:
+    linear-gradient(90deg, transparent 49.7%, rgba(81, 85, 76, 0.08) 50%, transparent 50.4%),
+    linear-gradient(98deg, rgba(255, 255, 255, 0.1), transparent 32%),
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(101, 42, 39, 0.24) 24px 26px), #ad4542;
+  box-shadow: 8px 11px 0 rgba(61, 95, 102, 0.14);
+  padding: 78px 48px 68px;
+}
+
+.house::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  opacity: 0.25;
+  background:
+    repeating-linear-gradient(1deg, transparent 0 25px, rgba(91, 44, 42, 0.2) 26px 27px),
+    repeating-linear-gradient(90deg, transparent 0 104px, rgba(255, 236, 218, 0.14) 105px 108px);
+}
+
+.countdown-card {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  width: min(290px, 70%);
+  min-height: 64px;
+  top: -38px;
+  left: 50%;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #485c60;
+  border-radius: 4px 5px 3px 6px;
+  background: #f9f4e9;
+  box-shadow: 3px 4px 0 rgba(55, 75, 76, 0.18);
+  color: #53696f;
+  transform: translateX(-50%) rotate(-0.5deg);
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.countdown-card span {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.countdown-card strong {
+  margin: 3px 0;
+  color: #b2605d;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.countdown-card small {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+.windows {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: clamp(12px, 2.8vw, 27px);
+  row-gap: clamp(22px, 3.5vw, 38px);
+}
+
+.window {
+  position: relative;
+  aspect-ratio: 0.72;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  padding: 0;
+  transition: transform 180ms ease;
+}
+
+.window:not(:disabled):hover {
+  transform: translateY(-3px) rotate(-1deg);
+}
+
+.window-frame {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid #f0dfc9;
+  border-radius: 3px 2px 2px 4px;
+  background: #5d777b;
+  box-shadow:
+    0 0 0 2px #4a5858,
+    3px 5px 0 rgba(73, 50, 46, 0.28);
+}
+
+.window:nth-child(3n) .window-frame {
+  transform: rotate(0.8deg);
+}
+.window:nth-child(4n) .window-frame {
+  transform: rotate(-0.7deg);
+}
+
+.window-glow {
+  position: absolute;
+  inset: 5px;
+  background: #769195;
+  transition:
+    background 350ms ease,
+    box-shadow 350ms ease;
+}
+
+.window-cross::before,
+.window-cross::after {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  background: #40595a;
+  content: "";
+}
+
+.window-cross::before {
+  width: 3px;
+  height: 100%;
+  top: 0;
+  left: calc(50% - 1px);
+}
+
+.window-cross::after {
+  width: 100%;
+  height: 3px;
+  top: calc(50% - 1px);
+  left: 0;
+}
+
+.window strong {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border: 1.5px solid #556969;
+  border-radius: 50% 47% 52% 48%;
+  background: #f7f0df;
+  box-shadow: 1px 2px 0 rgba(53, 73, 75, 0.22);
+  color: #40585c;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+}
+
+.window.is-opened .window-glow {
+  background: #efc66f;
+  box-shadow:
+    inset 0 0 16px #fff2b6,
+    0 0 16px rgba(250, 208, 106, 0.8);
+}
+
+.window.is-opened strong {
+  border-color: #8a6745;
+  background: #fff5d6;
+  color: #7f5239;
+}
+
+.window.is-locked {
+  cursor: not-allowed;
+}
+
+.window.is-locked .window-frame {
+  opacity: 0.68;
+  filter: saturate(0.4);
+}
+
+.front-door {
+  position: absolute;
+  z-index: 4;
+  width: 50px;
+  height: 63px;
+  bottom: -3px;
+  left: calc(50% - 25px);
+  border: 3px solid #425658;
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: #713631;
+}
+
+.front-door span {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  top: 36px;
+  right: 8px;
+  border-radius: 50%;
+  background: #eac06a;
+}
+
+.house-snow {
+  position: absolute;
+  z-index: 5;
+  width: 106%;
+  height: 19px;
+  bottom: -12px;
+  left: -3%;
+  border-radius: 50%;
+  background: #eef5f3;
+  box-shadow: 0 3px 0 rgba(81, 115, 120, 0.22);
+}
+
+.hint {
+  position: relative;
+  z-index: 3;
+  margin: 25px 0 0;
+  color: #496973;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+.hint-star {
+  margin-right: 8px;
+  color: #fff;
+  font-style: normal;
+}
+
+.day-view {
+  position: relative;
+  z-index: 9;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 76px 24px 48px;
+}
+
+.back-button {
+  position: absolute;
+  top: 26px;
+  left: 30px;
+  display: flex;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: #3c5962;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.back-button svg {
+  width: 18px;
+  margin-right: 6px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.day-card {
+  display: grid;
+  width: min(900px, 92vw);
+  overflow: hidden;
+  border: 2.5px solid #496064;
+  border-radius: 8px 5px 9px 6px;
+  background: #fbf7ed;
+  box-shadow: 9px 12px 0 rgba(54, 86, 94, 0.17);
+  grid-template-columns: 0.9fr 1.1fr;
+  transform: rotate(-0.2deg);
+}
+
+.day-illustration {
+  position: relative;
+  display: grid;
+  min-height: 470px;
+  place-items: center;
+  overflow: hidden;
+  border-right: 2px solid #53686a;
+  background:
+    radial-gradient(circle at 35% 32%, rgba(255, 255, 255, 0.45), transparent 27%), #d6e6e5;
+}
+
+.day-illustration::after {
+  position: absolute;
+  width: 110%;
+  height: 38%;
+  bottom: -17%;
+  left: -5%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.65);
+  content: "";
+}
+
+.day-illustration svg {
+  position: relative;
+  z-index: 2;
+  width: 78%;
+  filter: drop-shadow(3px 5px 0 rgba(67, 87, 86, 0.13));
+}
+
+.detail-number {
+  position: absolute;
+  top: 22px;
+  left: 26px;
+  color: rgba(49, 75, 80, 0.55);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 3.7rem;
+  line-height: 1;
+}
+
+.day-copy {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(45px, 7vw, 78px);
+  flex-direction: column;
+}
+
+.day-copy h1 {
+  max-width: 420px;
+  margin-top: 6px;
+  font-size: clamp(2.8rem, 5vw, 4.3rem);
+  line-height: 0.98;
+}
+
+.pencil-rule {
+  width: 78px;
+  height: 2px;
+  margin: 26px 0 22px;
+  background: #8d9b97;
+  transform: rotate(-2deg);
+}
+
+.message {
+  max-width: 440px;
+  margin: 0;
+  color: #556b6f;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.25rem;
+  line-height: 1.55;
+}
+
+.daily-note {
+  margin: 25px 0 0;
+  color: #a65c59;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.return-button {
+  margin-top: 34px;
+  border: 1.5px solid #536a6d;
+  border-radius: 4px 3px 5px 3px;
+  background: transparent;
+  padding: 11px 17px;
+  color: #405c62;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.return-button:hover {
+  background: #405c62;
+  color: #fffaf0;
+}
+
+.palette-amber .day-illustration {
+  background-color: #ead7ae;
+}
+.palette-pine .day-illustration {
+  background-color: #bed7cc;
+}
+.palette-blue .day-illustration {
+  background-color: #cadfe8;
+}
+.palette-cranberry .day-illustration {
+  background-color: #e7c2bd;
+}
+.palette-rose .day-illustration {
+  background-color: #ead3cb;
+}
+
+@media (max-width: 680px) {
+  .home-view {
+    justify-content: flex-start;
+    padding-top: 30px;
+  }
+
+  .scene-header h1 {
+    font-size: 2.9rem;
+  }
+
+  .subtitle {
+    max-width: 330px;
+    font-size: 0.96rem;
+  }
+
+  .house-wrap {
+    width: min(420px, 91vw);
+    margin-top: 78px;
+  }
+
+  .roof {
+    height: 128px;
+    top: -79px;
+  }
+
+  .chimney {
+    width: 36px;
+    height: 75px;
+    top: -70px;
+    right: 13%;
+  }
+
+  .chimney::before {
+    width: 46px;
+  }
+
+  .house {
+    padding: 61px 18px 48px;
+  }
+
+  .windows {
+    column-gap: 10px;
+    row-gap: 17px;
+  }
+
+  .window-frame {
+    border-width: 2px;
+  }
+
+  .window strong {
+    width: 23px;
+    height: 23px;
+    font-size: 0.78rem;
+  }
+
+  .countdown-card {
+    min-height: 58px;
+    top: -34px;
+  }
+
+  .front-door {
+    width: 38px;
+    height: 48px;
+    left: calc(50% - 19px);
+  }
+
+  .day-view {
+    align-items: flex-start;
+    padding: 70px 17px 40px;
+  }
+
+  .back-button {
+    top: 22px;
+    left: 18px;
+  }
+
+  .day-card {
+    max-width: 470px;
+    grid-template-columns: 1fr;
+  }
+
+  .day-illustration {
+    min-height: 260px;
+    border-right: 0;
+    border-bottom: 2px solid #53686a;
+  }
+
+  .day-illustration svg {
+    width: min(62%, 230px);
+  }
+
+  .detail-number {
+    font-size: 2.7rem;
+  }
+
+  .day-copy {
+    padding: 38px 31px 42px;
+  }
+
+  .day-copy h1 {
+    font-size: 2.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snow i {
+    animation: none;
+    opacity: 0.55;
+  }
+
+  .window {
+    transition: none;
+  }
+}

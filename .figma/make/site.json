@@ -1,0 +1,10 @@
+{
+  "description": "Explore a festive digital Advent calendar with 25 daily windows, countdowns, and seasonal photos and messages for a cozy December surprise.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
