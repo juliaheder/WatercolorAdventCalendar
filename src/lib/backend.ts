@@ -17,6 +17,8 @@ export type CalendarMeta = {
   subtitle: string;
   /** The receiver's name, shown under the title. */
   recipient: string;
+  /** Whether the bunny and raccoon sit in the garden. */
+  showAnimals: boolean;
   unlockMode: UnlockMode;
 };
 
@@ -57,6 +59,7 @@ type CalendarRow = {
   title: string;
   subtitle: string;
   recipient?: string;
+  show_animals?: boolean;
   unlock_mode: UnlockMode;
   open_count?: number;
   days: DayRow[];
@@ -116,20 +119,24 @@ function supabaseBackend(client: SupabaseClient): Backend {
         title: row.title,
         subtitle: row.subtitle,
         recipient: row.recipient ?? "",
+        showAnimals: row.show_animals ?? true,
         unlockMode: row.unlock_mode,
         days: row.days.map(fromRow),
       };
     },
 
     async updateCalendar(id, token, meta) {
-      const { error } = await client.rpc("update_calendar", {
+      const args = {
         p_id: id,
         p_token: token,
         p_title: meta.title,
         p_subtitle: meta.subtitle,
         p_recipient: meta.recipient,
         p_unlock_mode: meta.unlockMode,
-      });
+      };
+      let { error } = await client.rpc("update_calendar", { ...args, p_show_animals: meta.showAnimals });
+      // Until schema.sql is re-run, the database has no animals setting: save the rest.
+      if (error?.code === "PGRST202") ({ error } = await client.rpc("update_calendar", args));
       if (error) throw friendlyError(error, "Could not save the calendar.");
     },
 
@@ -180,6 +187,7 @@ function supabaseBackend(client: SupabaseClient): Backend {
         title: row.title,
         subtitle: row.subtitle,
         recipient: row.recipient ?? "",
+        showAnimals: row.show_animals ?? true,
         unlockMode: row.unlock_mode,
         openCount: row.open_count ?? 0,
         days: row.days.map(fromRow),
@@ -237,13 +245,13 @@ function localBackend(): Backend {
     async createCalendar(title) {
       const id = crypto.randomUUID();
       const token = crypto.randomUUID().replace(/-/g, "");
-      write({ id, token, title, subtitle: "", recipient: "", unlockMode: "daily", days: [], images: {} });
+      write({ id, token, title, subtitle: "", recipient: "", showAnimals: true, unlockMode: "daily", days: [], images: {} });
       return { id, editToken: token };
     },
 
     async loadForEdit(id, token) {
       const { token: _t, images: _i, ...cal } = requireEditor(id, token);
-      return { ...cal, recipient: cal.recipient ?? "", days: cal.days.map(withSecondPicture) };
+      return { ...cal, recipient: cal.recipient ?? "", showAnimals: cal.showAnimals ?? true, days: cal.days.map(withSecondPicture) };
     },
 
     async updateCalendar(id, token, meta) {
@@ -284,6 +292,7 @@ function localBackend(): Backend {
         title: cal.title,
         subtitle: cal.subtitle,
         recipient: cal.recipient ?? "",
+        showAnimals: cal.showAnimals ?? true,
         unlockMode: cal.unlockMode,
         openCount,
         days: cal.days.filter((d) => d.day <= openCount).map(withSecondPicture),

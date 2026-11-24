@@ -26,6 +26,7 @@ export function EditorView({ id, token }: { id: string; token: string }) {
           title: cal.title,
           subtitle: cal.subtitle,
           recipient: cal.recipient,
+          showAnimals: cal.showAnimals,
           unlockMode: cal.unlockMode,
         };
         lastSavedMeta.current = JSON.stringify(loaded);
@@ -137,15 +138,6 @@ export function EditorView({ id, token }: { id: string; token: string }) {
                 placeholder="Anna"
               />
             </label>
-            <label className="field">
-              <span>A line underneath (optional)</span>
-              <input
-                value={meta.subtitle}
-                maxLength={300}
-                onChange={(e) => setMeta({ ...meta, subtitle: e.target.value })}
-                placeholder="With love, from Grandma"
-              />
-            </label>
             <fieldset className="field">
               <span>When can they open the windows?</span>
               <label className="choice">
@@ -173,6 +165,18 @@ export function EditorView({ id, token }: { id: string; token: string }) {
                 </span>
               </label>
             </fieldset>
+            <div className="field">
+              <span>Add animal friends?</span>
+              <label className="choice is-compact">
+                <input
+                  type="checkbox"
+                  checked={meta.showAnimals}
+                  onChange={(e) => setMeta({ ...meta, showAnimals: e.target.checked })}
+                />
+                <strong>Yes</strong>
+              </label>
+              <small>Adds a bunny and a raccoon in Santa hats by the door.</small>
+            </div>
           </div>
 
           <div className="paper-card">

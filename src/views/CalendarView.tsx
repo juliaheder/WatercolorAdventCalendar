@@ -219,8 +219,7 @@ export function CalendarView({ id }: { id: string }) {
       <section className="home-view">
         <header className="scene-header">
           <h1>{calendar.title}</h1>
-          {calendar.recipient.trim() && <p className="recipient">{calendar.recipient}</p>}
-          {calendar.subtitle && <p className="subtitle">{calendar.subtitle}</p>}
+          {calendar.recipient.trim() && <RecipientName name={calendar.recipient} />}
         </header>
 
         <div className="house-wrap">
@@ -282,8 +281,12 @@ export function CalendarView({ id }: { id: string }) {
           <SnowyBush spot="back-right" />
           <SnowyBush spot="left" />
           <SnowyBush spot="right" />
-          <Bunny />
-          <Raccoon />
+          {calendar.showAnimals && (
+            <>
+              <Bunny />
+              <Raccoon />
+            </>
+          )}
           <div className="house-snow" />
         </div>
 
@@ -319,5 +322,57 @@ function DayPhotos({ urls, alt }: { urls: string[]; alt: string }) {
         </button>
       ))}
     </div>
+  );
+}
+
+// The chimney's left edge in the roof drawing (HouseRoof's viewBox is 460 wide).
+const CHIMNEY_LEFT = 313 / 460;
+const CHIMNEY_GAP = 10;
+const EDGE_GAP = 12;
+
+/**
+ * The receiver's name, centred under the title. A name long enough to reach the
+ * chimney slides left to clear it, and one too wide for the space beside the chimney
+ * is set smaller so it stays on one line.
+ */
+function RecipientName({ name }: { name: string }) {
+  const lineRef = useRef<HTMLParagraphElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    const fit = () => {
+      const line = lineRef.current;
+      const text = textRef.current;
+      const roof = document.querySelector(".house-roof");
+      if (!line || !text || !roof) return;
+
+      line.style.transform = "";
+      line.style.fontSize = "";
+      const roofBox = roof.getBoundingClientRect();
+      const chimneyLeft = roofBox.left + roofBox.width * CHIMNEY_LEFT - CHIMNEY_GAP;
+      const room = chimneyLeft - EDGE_GAP;
+
+      let box = text.getBoundingClientRect();
+      if (box.width > room) {
+        const size = parseFloat(getComputedStyle(line).fontSize);
+        line.style.fontSize = `${Math.floor((size * room) / box.width)}px`;
+        box = text.getBoundingClientRect();
+      }
+      if (box.right > chimneyLeft) {
+        const shift = Math.max(chimneyLeft - box.right, EDGE_GAP - box.left);
+        line.style.transform = `translateX(${shift}px)`;
+      }
+    };
+
+    fit();
+    document.fonts?.ready.then(fit);
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, [name]);
+
+  return (
+    <p className="recipient" ref={lineRef}>
+      <span ref={textRef}>{name}</span>
+    </p>
   );
 }

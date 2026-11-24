@@ -53,6 +53,17 @@ export function ChalkDefs() {
 export function HouseRoof() {
   return (
     <svg className="house-roof" viewBox="0 -44 460 226" aria-hidden="true" focusable="false">
+      {/* Faint smoke rising from the chimney, drawn above the viewBox (the svg overflows). */}
+      <defs>
+        <filter id="smoke-blur" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="3.5" />
+        </filter>
+      </defs>
+      <g className="chimney-smoke" filter="url(#smoke-blur)">
+        {[0, 1, 2, 3].map((i) => (
+          <circle key={i} cx="342" cy="-38" r="9" style={{ animationDelay: `${i * 2}s` }} />
+        ))}
+      </g>
       {/* Chimney sits behind the roof. */}
       <g filter="url(#hand-drawn)">
         <rect x="320" y="-28" width="44" height="120" fill="#a8483f" stroke="#2c3a3c" strokeWidth="4" />
@@ -165,7 +176,7 @@ export function SnowyBush({ spot }: { spot: "left" | "right" | "back-left" | "ba
   );
 }
 
-/** A little white bunny sitting in the snow, facing left. */
+/** A little white bunny in a Santa hat, sitting in the snow, facing left. */
 export function Bunny() {
   return (
     <svg className="house-bunny" viewBox="0 0 66 74" aria-hidden="true" focusable="false">
@@ -187,11 +198,17 @@ export function Bunny() {
       <path d="M13.5 42.5l3 0-1.5 2z" fill="#a7675c" stroke="#263437" strokeWidth="1" strokeLinejoin="round" />
       <path d="M15 45q1.5 2 3 0" fill="none" stroke="#263437" strokeWidth="1.2" strokeLinecap="round" />
       <ellipse cx="25" cy="45" rx="3" ry="1.8" fill="#e9b7a8" opacity=".55" />
+      {/* Santa hat, flopping forward */}
+      <g filter="url(#hand-drawn)" stroke="#263437" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round">
+        <path d="M16 28C15 19 12 13 6 12C13 6 25 8 32 15C35 18 37 23 37 28Z" fill="#c0453c" />
+        <path d="M13 29c-1-4 3-6 7-5 4-2 9-2 13 0 4-1 7 1 7 4 1 3-2 5-5 4-4 2-9 2-13 0-4 2-9 1-9-3z" fill="#f8fbf8" />
+        <circle cx="6" cy="12" r="4.5" fill="#f8fbf8" />
+      </g>
     </svg>
   );
 }
 
-/** A raccoon sitting up, with its striped tail curled to the side. */
+/** A raccoon in a Santa hat, sitting up, with its striped tail curled to the side. */
 export function Raccoon() {
   return (
     <svg className="house-raccoon" viewBox="0 0 86 78" aria-hidden="true" focusable="false">
@@ -222,6 +239,12 @@ export function Raccoon() {
       <ellipse cx="38" cy="37" rx="3" ry="2.2" fill="#263437" />
       <path d="M35 41q3 2.5 6 0" fill="none" stroke="#263437" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M23 16l3-3M53 16l-3-3" stroke="#3b4142" strokeWidth="2" strokeLinecap="round" />
+      {/* Santa hat, flopping to the side */}
+      <g filter="url(#hand-drawn)" stroke="#263437" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round">
+        <path d="M26 17C27 8 35 2 45 2C55 2 62 5 66 10C60 9 55 10 52 13C52 14 52 16 51 17Z" fill="#c0453c" />
+        <path d="M23 18c0-4 4-5 8-4 5-2 10-2 15 0 4-1 8 0 8 4 0 3-3 5-6 4-5 2-11 2-16 0-5 1-9 0-9-4z" fill="#f8fbf8" />
+        <circle cx="67" cy="10" r="4.5" fill="#f8fbf8" />
+      </g>
     </svg>
   );
 }

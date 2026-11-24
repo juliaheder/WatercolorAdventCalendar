@@ -51,6 +51,9 @@ alter table public.calendars drop constraint if exists calendars_recipient_check
 alter table public.calendars add constraint calendars_recipient_check
   check (char_length(recipient) <= 60);
 
+-- Added later: whether the bunny and raccoon sit in the garden.
+alter table public.calendars add column if not exists show_animals boolean not null default true;
+
 alter table public.calendars enable row level security;
 alter table public.calendar_days enable row level security;
 revoke all on public.calendars, public.calendar_days from anon, authenticated;
@@ -121,6 +124,7 @@ begin
     'title', c.title,
     'subtitle', c.subtitle,
     'recipient', c.recipient,
+    'show_animals', c.show_animals,
     'unlock_mode', c.unlock_mode,
     'days', coalesce((
       select json_agg(json_build_object(
@@ -138,12 +142,14 @@ begin
 end
 $$;
 
--- The older version without a recipient is removed so only one update_calendar exists.
+-- Older versions (without a recipient, without the animals setting) are removed so only
+-- one update_calendar exists.
 drop function if exists public.update_calendar(uuid, text, text, text, text);
+drop function if exists public.update_calendar(uuid, text, text, text, text, text);
 
 create or replace function public.update_calendar(
   p_id uuid, p_token text, p_title text, p_subtitle text, p_unlock_mode text,
-  p_recipient text default ''
+  p_recipient text default '', p_show_animals boolean default true
 )
 returns void
 language plpgsql
@@ -157,6 +163,7 @@ begin
   set title = coalesce(nullif(trim(p_title), ''), 'Merry Christmas'),
       subtitle = coalesce(trim(p_subtitle), ''),
       recipient = coalesce(trim(p_recipient), ''),
+      show_animals = coalesce(p_show_animals, true),
       unlock_mode = p_unlock_mode,
       updated_at = now()
   where id = p_id;
@@ -246,6 +253,7 @@ begin
     'title', v_cal.title,
     'subtitle', v_cal.subtitle,
     'recipient', v_cal.recipient,
+    'show_animals', v_cal.show_animals,
     'unlock_mode', v_cal.unlock_mode,
     'open_count', v_open,
     'days', coalesce((
@@ -272,7 +280,7 @@ $$;
 
 grant execute on function public.create_calendar(text) to anon, authenticated;
 grant execute on function public.get_calendar_for_edit(uuid, text) to anon, authenticated;
-grant execute on function public.update_calendar(uuid, text, text, text, text, text) to anon, authenticated;
+grant execute on function public.update_calendar(uuid, text, text, text, text, text, boolean) to anon, authenticated;
 grant execute on function public.save_day(uuid, text, int, text, text, text, text, text) to anon, authenticated;
 grant execute on function public.get_shared_calendar(uuid, date) to anon, authenticated;
 grant execute on function public.calendar_exists(text) to anon, authenticated;

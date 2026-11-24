@@ -5,7 +5,7 @@ const snowflakes = Array.from({ length: 34 }, (_, index) => ({
   left: (index * 37 + 7) % 100,
   delay: -((index * 1.7) % 14),
   duration: 10 + (index % 8),
-  size: 3 + (index % 5),
+  size: 7 + (index % 5) * 2,
 }));
 
 /** The watercolor sky and falling snow behind every page. */
