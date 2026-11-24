@@ -348,6 +348,14 @@
   left: -10%;
 }
 
+/* The big corner bushes stand in front of the animals, so they can hide behind them,
+   and sit a little lower so the animals' feet don't show beneath them. */
+.house-bush.is-left,
+.house-bush.is-right {
+  z-index: 8;
+  bottom: -20px;
+}
+
 .house-bush.is-right {
   right: -10%;
   transform: scaleX(-1);
@@ -380,12 +388,166 @@
   width: 13%;
   bottom: -15px;
   left: 23%;
+  animation: bunny-hide 20s ease-in-out 4s infinite;
 }
 
 .house-raccoon {
   width: 16%;
   bottom: -16px;
   right: 17%;
+  animation: raccoon-hide 24s ease-in-out 9s infinite;
+}
+
+/*
+ * Carol notes: a box the same size and place as the raccoon, so the notes can start
+ * at its head. They share the raccoon's cycle and only sing while it sits by the door
+ * (the first ~40% of the cycle), never while it's off hiding.
+ */
+.carol-notes {
+  position: absolute;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.carol-notes.is-raccoon {
+  --cycle: 24s;
+  --start: 9s;
+  --drift: 1;
+  width: 16%;
+  aspect-ratio: 86 / 78;
+  bottom: -16px;
+  right: 17%;
+}
+
+.carol-note {
+  position: absolute;
+  width: 50%;
+  opacity: 0;
+  animation: carol-note var(--cycle) ease-out infinite;
+  animation-delay: var(--start);
+}
+
+.carol-note svg {
+  display: block;
+  width: 100%;
+}
+
+/* Raccoon sings from under its hat, in the middle. */
+.carol-notes.is-raccoon .carol-note {
+  top: -14%;
+  left: 30%;
+}
+
+.carol-note.is-second {
+  width: 58%;
+  animation-delay: calc(var(--start) + 1.1s);
+}
+
+.carol-note.is-third {
+  animation-delay: calc(var(--start) + 2.2s);
+}
+
+@keyframes carol-note {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5) rotate(-12deg);
+  }
+  6% {
+    opacity: 1;
+  }
+  11% {
+    transform: translate(calc(var(--drift) * 40%), -110%) scale(0.95) rotate(10deg);
+  }
+  15% {
+    opacity: 0.9;
+  }
+  18%,
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--drift) * 20%), -220%) scale(1) rotate(-8deg);
+  }
+}
+
+/*
+ * Every now and then each animal scoots behind the nearest corner bush and stays out of
+ * sight for a while, then comes back. The bunny hops; the raccoon shuffles. While
+ * hidden, each sinks a third of its height and is clipped well above its feet (the
+ * clip moves with it), so nothing shows below or above the bush.
+ * Bunny: 20s cycle, about 5.5s out of sight.
+ */
+@keyframes bunny-hide {
+  0%,
+  48% {
+    transform: translate(0, 0);
+    clip-path: inset(0 0 0 0);
+  }
+  51% {
+    transform: translate(-60%, -12%);
+  }
+  54% {
+    transform: translate(-120%, 0);
+  }
+  57% {
+    transform: translate(-170%, -8%);
+    clip-path: inset(0 0 0 0);
+  }
+  59%,
+  86% {
+    transform: translate(-185%, 34%);
+    clip-path: inset(0 0 58% 0);
+  }
+  88% {
+    transform: translate(-150%, -8%);
+    clip-path: inset(0 0 0 0);
+  }
+  91% {
+    transform: translate(-80%, 0);
+  }
+  94% {
+    transform: translate(-30%, -10%);
+  }
+  97%,
+  100% {
+    transform: translate(0, 0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Raccoon: 24s cycle, about 6s out of sight. */
+@keyframes raccoon-hide {
+  0%,
+  50% {
+    transform: translate(0, 0) rotate(0deg);
+    clip-path: inset(0 0 0 0);
+  }
+  53% {
+    transform: translate(40%, 0) rotate(4deg);
+  }
+  56% {
+    transform: translate(85%, 0) rotate(-4deg);
+  }
+  59% {
+    transform: translate(130%, 0) rotate(3deg);
+    clip-path: inset(0 0 0 0);
+  }
+  61%,
+  86% {
+    transform: translate(145%, 34%) rotate(0deg);
+    clip-path: inset(0 0 58% 0);
+  }
+  89% {
+    transform: translate(110%, 0) rotate(-3deg);
+    clip-path: inset(0 0 0 0);
+  }
+  93% {
+    transform: translate(55%, 0) rotate(4deg);
+  }
+  97%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 .house-snow {
@@ -434,6 +596,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .chimney-smoke {
+    display: none;
+  }
+
+  .house-bunny,
+  .house-raccoon {
+    animation: none;
+  }
+
+  .carol-notes {
     display: none;
   }
 
