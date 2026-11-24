@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { backend, type CalendarMeta, type DayContent, type EditableCalendar } from "../lib/backend";
 import { prepareImage } from "../lib/image";
 import { isSpotifyShortLink, parseSpotify, spotifyLink, SpotifyPlayer } from "../lib/spotify";
@@ -22,7 +22,12 @@ export function EditorView({ id, token }: { id: string; token: string }) {
       .loadForEdit(id, token)
       .then((cal) => {
         setCalendar(cal);
-        const loaded = { title: cal.title, subtitle: cal.subtitle, unlockMode: cal.unlockMode };
+        const loaded = {
+          title: cal.title,
+          subtitle: cal.subtitle,
+          recipient: cal.recipient,
+          unlockMode: cal.unlockMode,
+        };
         lastSavedMeta.current = JSON.stringify(loaded);
         setMeta(loaded);
         rememberCalendar({ id, token, title: cal.title });
@@ -109,6 +114,7 @@ export function EditorView({ id, token }: { id: string; token: string }) {
         <header className="editor-header">
           <p className="kicker">Your advent calendar</p>
           <h1>{meta.title || "Merry Christmas"}</h1>
+          {meta.recipient.trim() && <p className="recipient">{meta.recipient}</p>}
         </header>
 
         <div className="editor-columns">
@@ -124,12 +130,21 @@ export function EditorView({ id, token }: { id: string; token: string }) {
               />
             </label>
             <label className="field">
+              <span>Their name (optional)</span>
+              <input
+                value={meta.recipient}
+                maxLength={60}
+                onChange={(e) => setMeta({ ...meta, recipient: e.target.value })}
+                placeholder="Anna"
+              />
+            </label>
+            <label className="field">
               <span>A line underneath (optional)</span>
               <input
                 value={meta.subtitle}
                 maxLength={300}
                 onChange={(e) => setMeta({ ...meta, subtitle: e.target.value })}
-                placeholder="For Anna, with love"
+                placeholder="With love, from Grandma"
               />
             </label>
             <fieldset className="field">
@@ -203,7 +218,9 @@ export function EditorView({ id, token }: { id: string; token: string }) {
                   <span className="tile-label">
                     <strong>{number}</strong>
                     <span>
-                      {day ? day.title || day.message || (day.imagePath ? "Picture" : "Song") : "Empty"}
+                      {day
+                        ? day.title || day.message || (day.imagePath ? (day.imagePath2 ? "2 pictures" : "Picture") : "Song")
+                        : "Empty"}
                     </span>
                     {day?.spotify && (
                       <span className="tile-song" title="Has a song">
@@ -295,7 +312,11 @@ function DayEditor({
 }) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [message, setMessage] = useState(initial?.message ?? "");
-  const [imagePath, setImagePath] = useState<string | null>(initial?.imagePath ?? null);
+  // Up to two pictures. Slot 0 is the main one; slot 1 is offered once slot 0 is filled.
+  const [pictures, setPictures] = useState<(string | null)[]>([
+    initial?.imagePath ?? null,
+    initial?.imagePath2 ?? null,
+  ]);
   const [songInput, setSongInput] = useState(initial?.spotify ? spotifyLink(initial.spotify) : "");
   const song = parseSpotify(songInput);
   const songProblem =
@@ -304,11 +325,10 @@ function DayEditor({
         ? "This is a short link. Open it in your browser and copy the open.spotify.com address instead."
         : "That doesn't look like a Spotify link. In Spotify, use Share → Copy song link."
       : "";
-  const [uploading, setUploading] = useState(false);
+  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
+  const uploading = uploadingSlot !== null;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [dragging, setDragging] = useState(false);
-  const fileInput = useRef<HTMLInputElement>(null);
   // Pictures uploaded while this dialog is open. Any that don't end up saved get deleted.
   const uploadedHere = useRef<string[]>([]);
   const fallback = defaultDays[dayNumber - 1];
@@ -316,7 +336,8 @@ function DayEditor({
   const dirty =
     title !== (initial?.title ?? "") ||
     message !== (initial?.message ?? "") ||
-    imagePath !== (initial?.imagePath ?? null) ||
+    pictures[0] !== (initial?.imagePath ?? null) ||
+    pictures[1] !== (initial?.imagePath2 ?? null) ||
     song !== (initial?.spotify ?? null) ||
     (!!songInput.trim() && !song);
 
@@ -332,19 +353,27 @@ function DayEditor({
     onClose();
   };
 
-  const pickFile = async (file: File | undefined) => {
+  const setPicture = (slot: number, path: string | null) =>
+    setPictures((current) => {
+      const next = [...current];
+      next[slot] = path;
+      // Removing the first picture moves the second one up.
+      return next[0] ? next : [next[1], null];
+    });
+
+  const pickFile = async (slot: number, file: File | undefined) => {
     if (!file) return;
     setError("");
-    setUploading(true);
+    setUploadingSlot(slot);
     try {
       const prepared = await prepareImage(file);
       const path = await backend.uploadImage(calendarId, prepared);
       uploadedHere.current.push(path);
-      setImagePath(path);
+      setPicture(slot, path);
     } catch (err) {
       setError((err as Error).message);
     } finally {
-      setUploading(false);
+      setUploadingSlot(null);
     }
   };
 
@@ -359,14 +388,15 @@ function DayEditor({
       day: dayNumber,
       title: title.trim(),
       message: message.trim(),
-      imagePath,
+      imagePath: pictures[0],
+      imagePath2: pictures[0] ? pictures[1] : null,
       spotify: song,
     };
     try {
       await backend.saveDay(calendarId, token, day);
-      // Now that the window points at its new picture, the old and unchosen ones are unused.
-      const leftovers = [...uploadedHere.current, initial?.imagePath].filter(
-        (p): p is string => !!p && p !== day.imagePath,
+      // Now that the window points at its new pictures, the old and unchosen ones are unused.
+      const leftovers = [...uploadedHere.current, initial?.imagePath, initial?.imagePath2].filter(
+        (p): p is string => !!p && p !== day.imagePath && p !== day.imagePath2,
       );
       backend.deleteUnusedImages(leftovers);
       onSaved(day, !day.title && !day.message && !day.imagePath && !day.spotify);
@@ -379,7 +409,6 @@ function DayEditor({
   };
 
   const busy = uploading || saving;
-  const imageUrl = imagePath ? backend.imageUrl(imagePath) : "";
 
   return (
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && requestClose()}>
@@ -393,47 +422,29 @@ function DayEditor({
         </div>
 
         <div className="modal-body">
-          <div
-            className={`dropzone ${dragging ? "is-dragging" : ""} ${imageUrl ? "has-image" : ""}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              pickFile(e.dataTransfer.files[0]);
-            }}
-          >
-            {imageUrl ? (
-              <img src={imageUrl} alt="Picture for this window" />
-            ) : (
-              <div className="dropzone-empty">
-                <WinterIllustration type={fallback.illustration} />
-                <p>{uploading ? "Uploading…" : "Drop a picture here"}</p>
-              </div>
-            )}
-            <div className="dropzone-actions">
-              <button className="small-button" onClick={() => fileInput.current?.click()} disabled={busy}>
-                {uploading ? "Uploading…" : imageUrl ? "Replace picture" : "Choose a picture"}
-              </button>
-              {imageUrl && (
-                <button className="small-button" onClick={() => setImagePath(null)} disabled={busy}>
-                  Remove
-                </button>
-              )}
-            </div>
-            <input
-              ref={fileInput}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => {
-                pickFile(e.target.files?.[0]);
-                e.target.value = "";
-              }}
+          <div className="picture-slots">
+            <PictureSlot
+              path={pictures[0]}
+              emptyArt={<WinterIllustration type={fallback.illustration} />}
+              emptyText="Drop a picture here"
+              chooseLabel="Choose a picture"
+              uploading={uploadingSlot === 0}
+              busy={busy}
+              onPick={(file) => pickFile(0, file)}
+              onRemove={() => setPicture(0, null)}
             />
+            {pictures[0] && (
+              <PictureSlot
+                compact
+                path={pictures[1]}
+                emptyText="Add a second picture (optional)"
+                chooseLabel="Choose a second picture"
+                uploading={uploadingSlot === 1}
+                busy={busy}
+                onPick={(file) => pickFile(1, file)}
+                onRemove={() => setPicture(1, null)}
+              />
+            )}
           </div>
 
           <div className="modal-fields">
@@ -482,6 +493,78 @@ function DayEditor({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** One picture of a window: drop or choose a file, see it, replace or remove it. */
+function PictureSlot({
+  path,
+  emptyArt,
+  emptyText,
+  chooseLabel,
+  uploading,
+  busy,
+  compact = false,
+  onPick,
+  onRemove,
+}: {
+  path: string | null;
+  emptyArt?: ReactNode;
+  emptyText: string;
+  chooseLabel: string;
+  uploading: boolean;
+  busy: boolean;
+  compact?: boolean;
+  onPick: (file: File | undefined) => void;
+  onRemove: () => void;
+}) {
+  const [dragging, setDragging] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const imageUrl = path ? backend.imageUrl(path) : "";
+
+  return (
+    <div
+      className={`dropzone ${compact ? "is-compact" : ""} ${dragging ? "is-dragging" : ""} ${imageUrl ? "has-image" : ""}`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        if (!busy) onPick(e.dataTransfer.files[0]);
+      }}
+    >
+      {imageUrl ? (
+        <img src={imageUrl} alt="Picture for this window" />
+      ) : (
+        <div className="dropzone-empty">
+          {emptyArt}
+          <p>{uploading ? "Uploading…" : emptyText}</p>
+        </div>
+      )}
+      <div className="dropzone-actions">
+        <button className="small-button" onClick={() => fileInput.current?.click()} disabled={busy}>
+          {uploading ? "Uploading…" : imageUrl ? "Replace picture" : chooseLabel}
+        </button>
+        {imageUrl && (
+          <button className="small-button" onClick={onRemove} disabled={busy}>
+            Remove
+          </button>
+        )}
+      </div>
+      <input
+        ref={fileInput}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          onPick(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }

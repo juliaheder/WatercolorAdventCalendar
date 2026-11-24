@@ -6,6 +6,22 @@
       "runtimeExecutable": "/home/julia/.local/node/bin/node",
       "runtimeArgs": ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1"],
       "port": 8443
+    },
+    {
+      "name": "calendar-demo",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "VITE_SUPABASE_URL=",
+        "VITE_SUPABASE_ANON_KEY=",
+        "/home/julia/.local/node/bin/node",
+        "node_modules/vite/bin/vite.js",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8444",
+        "--strictPort"
+      ],
+      "port": 8444
     }
   ]
 }

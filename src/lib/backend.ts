@@ -6,6 +6,8 @@ export type DayContent = {
   title: string;
   message: string;
   imagePath: string | null;
+  /** Optional second picture. Only set when imagePath is. */
+  imagePath2: string | null;
   /** Spotify item as "<type>/<id>", e.g. "track/4uLU6hMCjMI75M1A2tKUQC". */
   spotify: string | null;
 };
@@ -13,6 +15,8 @@ export type DayContent = {
 export type CalendarMeta = {
   title: string;
   subtitle: string;
+  /** The receiver's name, shown under the title. */
+  recipient: string;
   unlockMode: UnlockMode;
 };
 
@@ -45,12 +49,14 @@ type DayRow = {
   title: string;
   message: string;
   image_path: string | null;
+  image_path_2?: string | null;
   spotify?: string | null;
 };
 type CalendarRow = {
   id: string;
   title: string;
   subtitle: string;
+  recipient?: string;
   unlock_mode: UnlockMode;
   open_count?: number;
   days: DayRow[];
@@ -61,6 +67,7 @@ const fromRow = (row: DayRow): DayContent => ({
   title: row.title,
   message: row.message,
   imagePath: row.image_path,
+  imagePath2: row.image_path_2 ?? null,
   spotify: row.spotify ?? null,
 });
 
@@ -92,6 +99,7 @@ function supabaseBackend(client: SupabaseClient): Backend {
         id: row.id,
         title: row.title,
         subtitle: row.subtitle,
+        recipient: row.recipient ?? "",
         unlockMode: row.unlock_mode,
         days: row.days.map(fromRow),
       };
@@ -103,6 +111,7 @@ function supabaseBackend(client: SupabaseClient): Backend {
         p_token: token,
         p_title: meta.title,
         p_subtitle: meta.subtitle,
+        p_recipient: meta.recipient,
         p_unlock_mode: meta.unlockMode,
       });
       if (error) throw friendlyError(error, "Could not save the calendar.");
@@ -117,6 +126,7 @@ function supabaseBackend(client: SupabaseClient): Backend {
         p_message: day.message,
         p_image_path: day.imagePath,
         p_spotify: day.spotify,
+        p_image_path_2: day.imagePath2,
       });
       if (error) throw friendlyError(error, "Could not save this window.");
     },
@@ -150,6 +160,7 @@ function supabaseBackend(client: SupabaseClient): Backend {
         id: row.id,
         title: row.title,
         subtitle: row.subtitle,
+        recipient: row.recipient ?? "",
         unlockMode: row.unlock_mode,
         openCount: row.open_count ?? 0,
         days: row.days.map(fromRow),
@@ -166,6 +177,9 @@ function supabaseBackend(client: SupabaseClient): Backend {
  * Demo backend used when no Supabase project is configured. Everything lives in this
  * browser's localStorage (pictures as data URLs), so links only work on this device.
  */
+/** Demo windows saved before second pictures existed have no imagePath2. */
+const withSecondPicture = (day: DayContent): DayContent => ({ ...day, imagePath2: day.imagePath2 ?? null });
+
 function localBackend(): Backend {
   type Stored = EditableCalendar & { token: string; images: Record<string, string> };
   const key = (id: string) => `advent-demo:${id}`;
@@ -202,13 +216,13 @@ function localBackend(): Backend {
     async createCalendar(title) {
       const id = crypto.randomUUID();
       const token = crypto.randomUUID().replace(/-/g, "");
-      write({ id, token, title, subtitle: "", unlockMode: "daily", days: [], images: {} });
+      write({ id, token, title, subtitle: "", recipient: "", unlockMode: "daily", days: [], images: {} });
       return { id, editToken: token };
     },
 
     async loadForEdit(id, token) {
       const { token: _t, images: _i, ...cal } = requireEditor(id, token);
-      return cal;
+      return { ...cal, recipient: cal.recipient ?? "", days: cal.days.map(withSecondPicture) };
     },
 
     async updateCalendar(id, token, meta) {
@@ -234,7 +248,7 @@ function localBackend(): Backend {
     async deleteUnusedImages(paths) {
       for (const path of paths) {
         const cal = read(path.split("/")[0]);
-        if (!cal || cal.days.some((d) => d.imagePath === path)) continue;
+        if (!cal || cal.days.some((d) => d.imagePath === path || d.imagePath2 === path)) continue;
         const { [path]: _removed, ...images } = cal.images;
         write({ ...cal, images });
       }
@@ -248,9 +262,10 @@ function localBackend(): Backend {
         id: cal.id,
         title: cal.title,
         subtitle: cal.subtitle,
+        recipient: cal.recipient ?? "",
         unlockMode: cal.unlockMode,
         openCount,
-        days: cal.days.filter((d) => d.day <= openCount),
+        days: cal.days.filter((d) => d.day <= openCount).map(withSecondPicture),
       };
     },
 

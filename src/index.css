@@ -167,6 +167,29 @@
   line-height: 1.35;
 }
 
+/* The receiver's name, in the title's script, set left so it clears the chimney. */
+.recipient {
+  max-width: 62%;
+  margin: 0 auto 0 4%;
+  overflow-wrap: anywhere;
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.8rem, 5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+/* On the calendar the name hangs below the title, beside the chimney, without
+   pushing the house down. With a line underneath it stays in the flow instead. */
+.scene-header .recipient:last-child {
+  position: absolute;
+  top: calc(100% + 0.1em);
+  left: 0;
+  width: 62%;
+  max-width: none;
+  margin: 0;
+  text-align: center;
+}
+
 .hint {
   position: relative;
   z-index: 3;
@@ -434,6 +457,69 @@
 
 .scene-header .subtitle {
   margin-bottom: 34px;
+}
+
+/* Two pictures sit together like prints laid on the card, slightly overlapping. */
+.photo-collage {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+}
+
+.collage-print {
+  position: absolute;
+  display: flex;
+  max-width: 72%;
+  max-height: 62%;
+  border: 0;
+  background: #fffdf8;
+  box-shadow: 4px 6px 0 rgba(54, 86, 94, 0.2);
+  cursor: pointer;
+  padding: 7px 7px 20px;
+  transition: transform 0.25s ease;
+}
+
+.collage-print img {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.collage-print.is-print-1 {
+  z-index: 1;
+  top: 13%;
+  left: 7%;
+  transform: rotate(-4deg);
+}
+
+.collage-print.is-print-2 {
+  z-index: 1;
+  right: 6%;
+  bottom: 7%;
+  transform: rotate(3.5deg);
+}
+
+.collage-print.is-front {
+  z-index: 2;
+}
+
+@media (max-width: 680px) {
+  .day-illustration:has(.photo-collage) {
+    min-height: 420px;
+  }
+}
+
+.collage-print:hover,
+.collage-print:focus-visible {
+  transform: rotate(0deg) scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collage-print {
+    transition: none;
+  }
 }
 
 .day-illustration.has-photo .detail-number {
@@ -971,6 +1057,25 @@ button:disabled {
   background: #e5eeec;
 }
 
+.picture-slots {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.picture-slots > .dropzone:first-child {
+  flex: 1;
+}
+
+.dropzone.is-compact {
+  min-height: 150px;
+}
+
+.dropzone.is-compact > img {
+  max-height: 220px;
+}
+
 .dropzone.is-dragging {
   border-color: #9f302f;
   background: #f3e3df;
@@ -1130,6 +1235,13 @@ button:disabled {
 
 .subtitle {
   color: #e2e8f5;
+}
+
+.recipient {
+  color: #fbeee2;
+  text-shadow:
+    2px 2px 0 #9f302f,
+    3px 4px 0 rgba(8, 14, 36, 0.45);
 }
 
 .hint {

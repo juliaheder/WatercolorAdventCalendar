@@ -1,7 +1,7 @@
 # Watercolor Advent Calendar
 
-Make a personal advent calendar: put a picture and a message behind each of the 25 windows,
-then share one link. The receiver opens a window a day (or all at once, if you choose) and
+Make a personal advent calendar: put the receiver's name on the house, put up to two pictures
+and a message behind each of the 25 windows, then share one link. The receiver opens a window a day (or all at once, if you choose) and
 can't change anything.
 
 ## How it works
@@ -24,7 +24,8 @@ browser, so you can try it, but links won't work on other devices.
 1. Create a free project at [supabase.com](https://supabase.com).
 2. In the project, open **SQL Editor → New query**, paste all of
    [supabase/schema.sql](supabase/schema.sql), and press **Run**. This creates the tables, the
-   functions, and a `calendar-images` storage bucket.
+   functions, and a `calendar-images` storage bucket. Run it again after pulling changes to
+   `schema.sql`: it's safe to re-run and only adds what's missing.
 3. Open **Project Settings → API** (or **Connect**) and copy the **Project URL** and the
    **anon / publishable** key. Both are meant to be public, so they're safe in the browser.
 4. Copy `.env.example` to `.env.local` and fill in those two values.

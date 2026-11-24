@@ -38,6 +38,17 @@ alter table public.calendar_days drop constraint if exists calendar_days_spotify
 alter table public.calendar_days add constraint calendar_days_spotify_check
   check (spotify is null or spotify ~ '^(track|album|playlist|episode|show)/[A-Za-z0-9]{10,40}$');
 
+-- Added later: an optional second picture per window.
+alter table public.calendar_days add column if not exists image_path_2 text;
+alter table public.calendar_days drop constraint if exists calendar_days_image_path_2_check;
+alter table public.calendar_days add constraint calendar_days_image_path_2_check
+  check (image_path_2 is null or char_length(image_path_2) <= 300);
+
+alter table public.calendars add column if not exists recipient text not null default '';
+alter table public.calendars drop constraint if exists calendars_recipient_check;
+alter table public.calendars add constraint calendars_recipient_check
+  check (char_length(recipient) <= 60);
+
 alter table public.calendars enable row level security;
 alter table public.calendar_days enable row level security;
 revoke all on public.calendars, public.calendar_days from anon, authenticated;
@@ -107,11 +118,12 @@ begin
     'id', c.id,
     'title', c.title,
     'subtitle', c.subtitle,
+    'recipient', c.recipient,
     'unlock_mode', c.unlock_mode,
     'days', coalesce((
       select json_agg(json_build_object(
         'day', d.day, 'title', d.title, 'message', d.message, 'image_path', d.image_path,
-        'spotify', d.spotify
+        'image_path_2', d.image_path_2, 'spotify', d.spotify
       ) order by d.day)
       from public.calendar_days d where d.calendar_id = c.id
     ), '[]'::json)
@@ -124,8 +136,12 @@ begin
 end
 $$;
 
+-- The older version without a recipient is removed so only one update_calendar exists.
+drop function if exists public.update_calendar(uuid, text, text, text, text);
+
 create or replace function public.update_calendar(
-  p_id uuid, p_token text, p_title text, p_subtitle text, p_unlock_mode text
+  p_id uuid, p_token text, p_title text, p_subtitle text, p_unlock_mode text,
+  p_recipient text default ''
 )
 returns void
 language plpgsql
@@ -138,18 +154,21 @@ begin
   update public.calendars
   set title = coalesce(nullif(trim(p_title), ''), 'Merry Christmas'),
       subtitle = coalesce(trim(p_subtitle), ''),
+      recipient = coalesce(trim(p_recipient), ''),
       unlock_mode = p_unlock_mode,
       updated_at = now()
   where id = p_id;
 end
 $$;
 
--- The older version without a song is removed so only one save_day exists.
+-- Older versions (without a song, without a second picture) are removed so only one
+-- save_day exists.
 drop function if exists public.save_day(uuid, text, int, text, text, text);
+drop function if exists public.save_day(uuid, text, int, text, text, text, text);
 
 create or replace function public.save_day(
   p_id uuid, p_token text, p_day int, p_title text, p_message text, p_image_path text,
-  p_spotify text default null
+  p_spotify text default null, p_image_path_2 text default null
 )
 returns void
 language plpgsql
@@ -159,23 +178,26 @@ as $$
 begin
   perform public._require_editor(p_id, p_token);
 
-  if p_image_path is not null and p_image_path not like p_id::text || '/%' then
+  if (p_image_path is not null and p_image_path not like p_id::text || '/%')
+     or (p_image_path_2 is not null and p_image_path_2 not like p_id::text || '/%') then
     raise exception 'That picture does not belong to this calendar.';
   end if;
 
   if coalesce(trim(p_title), '') = '' and coalesce(trim(p_message), '') = ''
-     and p_image_path is null and p_spotify is null then
+     and p_image_path is null and p_image_path_2 is null and p_spotify is null then
     delete from public.calendar_days where calendar_id = p_id and day = p_day;
     return;
   end if;
 
-  insert into public.calendar_days (calendar_id, day, title, message, image_path, spotify, updated_at)
+  insert into public.calendar_days
+    (calendar_id, day, title, message, image_path, image_path_2, spotify, updated_at)
   values (p_id, p_day, coalesce(trim(p_title), ''), coalesce(trim(p_message), ''), p_image_path,
-          p_spotify, now())
+          p_image_path_2, p_spotify, now())
   on conflict (calendar_id, day) do update
   set title = excluded.title,
       message = excluded.message,
       image_path = excluded.image_path,
+      image_path_2 = excluded.image_path_2,
       spotify = excluded.spotify,
       updated_at = now();
 end
@@ -221,12 +243,13 @@ begin
     'id', v_cal.id,
     'title', v_cal.title,
     'subtitle', v_cal.subtitle,
+    'recipient', v_cal.recipient,
     'unlock_mode', v_cal.unlock_mode,
     'open_count', v_open,
     'days', coalesce((
       select json_agg(json_build_object(
         'day', d.day, 'title', d.title, 'message', d.message, 'image_path', d.image_path,
-        'spotify', d.spotify
+        'image_path_2', d.image_path_2, 'spotify', d.spotify
       ) order by d.day)
       from public.calendar_days d
       where d.calendar_id = p_id and d.day <= v_open
@@ -247,8 +270,8 @@ $$;
 
 grant execute on function public.create_calendar(text) to anon, authenticated;
 grant execute on function public.get_calendar_for_edit(uuid, text) to anon, authenticated;
-grant execute on function public.update_calendar(uuid, text, text, text, text) to anon, authenticated;
-grant execute on function public.save_day(uuid, text, int, text, text, text, text) to anon, authenticated;
+grant execute on function public.update_calendar(uuid, text, text, text, text, text) to anon, authenticated;
+grant execute on function public.save_day(uuid, text, int, text, text, text, text, text) to anon, authenticated;
 grant execute on function public.get_shared_calendar(uuid, date) to anon, authenticated;
 grant execute on function public.calendar_exists(text) to anon, authenticated;
 
@@ -274,7 +297,7 @@ security definer
 set search_path = ''
 as $$
   select public.calendar_exists(split_part(p_name, '/', 1))
-     and not exists (select 1 from public.calendar_days where image_path = p_name)
+     and not exists (select 1 from public.calendar_days where p_name in (image_path, image_path_2))
 $$;
 
 grant execute on function public.calendar_image_is_unused(text) to anon, authenticated;

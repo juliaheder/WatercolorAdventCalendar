@@ -171,7 +171,9 @@ export function CalendarView({ id }: { id: string }) {
   if (selectedDay) {
     const custom = calendar.days.find((d) => d.day === selectedDay);
     const fallback = defaultDays[selectedDay - 1];
-    const imageUrl = custom?.imagePath ? backend.imageUrl(custom.imagePath) : "";
+    const photos = [custom?.imagePath, custom?.imagePath2]
+      .filter((path): path is string => !!path)
+      .map((path) => backend.imageUrl(path));
     const title = custom ? custom.title : fallback.title;
     const message = custom ? custom.message : fallback.message;
 
@@ -185,12 +187,10 @@ export function CalendarView({ id }: { id: string }) {
             Back to the house
           </button>
           <article className="day-card" ref={cardRef}>
-            <div className={`day-illustration ${imageUrl ? "has-photo" : ""}`}>
+            <div className={`day-illustration ${photos.length ? "has-photo" : ""}`}>
               <span className="detail-number">{selectedDay}</span>
-              {imageUrl ? (
-                <>
-                  <img className="day-photo" src={imageUrl} alt={title || `December ${selectedDay}`} />
-                </>
+              {photos.length ? (
+                <DayPhotos key={selectedDay} urls={photos} alt={title || `December ${selectedDay}`} />
               ) : (
                 <WinterIllustration type={fallback.illustration} />
               )}
@@ -219,6 +219,7 @@ export function CalendarView({ id }: { id: string }) {
       <section className="home-view">
         <header className="scene-header">
           <h1>{calendar.title}</h1>
+          {calendar.recipient.trim() && <p className="recipient">{calendar.recipient}</p>}
           {calendar.subtitle && <p className="subtitle">{calendar.subtitle}</p>}
         </header>
 
@@ -294,5 +295,29 @@ export function CalendarView({ id }: { id: string }) {
         </p>
       </section>
     </Scene>
+  );
+}
+
+/**
+ * A window's pictures. Two are laid out together as a collage of tilted prints;
+ * tapping one brings it to the front.
+ */
+function DayPhotos({ urls, alt }: { urls: string[]; alt: string }) {
+  const [front, setFront] = useState(1);
+  if (urls.length === 1) return <img className="day-photo" src={urls[0]} alt={alt} />;
+
+  return (
+    <div className="photo-collage">
+      {urls.map((url, index) => (
+        <button
+          key={url}
+          className={`collage-print is-print-${index + 1} ${index === front ? "is-front" : ""}`}
+          onClick={() => setFront(index)}
+          aria-label={`Bring picture ${index + 1} to the front`}
+        >
+          <img src={url} alt={`${alt} (picture ${index + 1} of ${urls.length})`} />
+        </button>
+      ))}
+    </div>
   );
 }
