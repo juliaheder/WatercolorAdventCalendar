@@ -1,0 +1,422 @@
+/* The advent house: old-school cartoon style with chalky details.
+   Pieces drawn in SVG live in src/components/House.tsx. */
+
+.chalk-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.house-wrap {
+  position: relative;
+  /* Sized so the whole house fits on a laptop screen. */
+  width: min(400px, 88vw, calc((100vh - 300px) * 0.62));
+  min-width: min(290px, 88vw);
+  margin-top: 12px;
+  margin-bottom: 18px;
+}
+
+/* ---------------------------------------------------------------- roof */
+
+.house-roof {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 112%;
+  /* Roof drawing is 460 wide; the house front starts 32 units above its bottom edge. */
+  margin: 0 0 calc(-32 / 460 * 112%) -6%;
+  overflow: visible;
+}
+
+.roof-lights > g {
+  animation: twinkle 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(255, 233, 160, 0.95));
+  }
+}
+
+/* ---------------------------------------------------------------- front of the house */
+
+.house {
+  position: relative;
+  border: 4px solid #263437;
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  background:
+    linear-gradient(98deg, rgba(255, 255, 255, 0.07), transparent 35%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='32'%3E%3Crect width='60' height='32' fill='%23661f1c'/%3E%3Crect x='1' y='1' width='28' height='14' rx='1.5' fill='%238a2f2b'/%3E%3Crect x='31' y='1' width='28' height='14' rx='1.5' fill='%23842c28'/%3E%3Crect x='-14' y='17' width='28' height='14' rx='1.5' fill='%238e322d'/%3E%3Crect x='16' y='17' width='28' height='14' rx='1.5' fill='%23872d29'/%3E%3Crect x='46' y='17' width='28' height='14' rx='1.5' fill='%238e322d'/%3E%3C/svg%3E") 0 0 / 48px 25.6px;
+  box-shadow: 7px 9px 0 rgba(38, 52, 55, 0.18);
+  padding: 58px 19px 74px;
+}
+
+.house-foundation {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 16px;
+  border-top: 3px solid #263437;
+  background:
+    radial-gradient(ellipse 9px 6px at 10px 8px, #b9bdb4 90%, transparent 100%) 0 0 / 22px 16px,
+    radial-gradient(ellipse 8px 6px at 21px 9px, #a7aba2 90%, transparent 100%) 0 0 / 22px 16px,
+    #8d918a;
+}
+
+/* ---------------------------------------------------------------- countdown chalkboard */
+
+.countdown-card {
+  position: absolute;
+  z-index: 7;
+  display: flex;
+  width: min(290px, 70%);
+  min-height: 64px;
+  top: -34px;
+  left: 50%;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #485c60;
+  border-radius: 4px 5px 3px 6px;
+  background: #f9f4e9;
+  box-shadow: 3px 4px 0 rgba(55, 75, 76, 0.18);
+  color: #53696f;
+  transform: translateX(-50%) rotate(-0.5deg);
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.countdown-card span {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.countdown-card strong {
+  margin: 3px 0;
+  color: #b2605d;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.countdown-card small {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+/* ---------------------------------------------------------------- windows */
+
+.windows {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: clamp(10px, 2.6vw, 17px);
+  row-gap: clamp(18px, 3vw, 24px);
+}
+
+.window {
+  position: relative;
+  aspect-ratio: 0.82;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  transition: transform 180ms ease;
+}
+
+.window:not(:disabled):hover {
+  transform: translateY(-3px) rotate(-2deg);
+}
+
+.window-frame {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 2.5px solid #263437;
+  border-radius: 3px;
+  background: #f3e6cf;
+  box-shadow: 2px 3px 0 rgba(48, 20, 16, 0.32);
+}
+
+.window:nth-child(3n) .window-frame {
+  transform: rotate(1deg);
+}
+
+.window:nth-child(4n + 1) .window-frame {
+  transform: rotate(-1deg);
+}
+
+/* Glass. */
+.window-glow {
+  position: absolute;
+  inset: 4px;
+  border: 1.5px solid #263437;
+  border-radius: 1px;
+  /* Dark until opened. */
+  background: linear-gradient(165deg, #5f8394, #34505e);
+  transition:
+    background 350ms ease,
+    box-shadow 350ms ease;
+}
+
+/* A chalky glint on the glass. */
+.window-glow::after {
+  position: absolute;
+  width: 3px;
+  height: 30%;
+  top: 14%;
+  left: 20%;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.75);
+  content: "";
+  filter: url(#chalk);
+  transform: rotate(24deg);
+}
+
+.window-cross::before,
+.window-cross::after {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  background: #f3e6cf;
+  box-shadow: 0 0 0 1.2px #263437;
+  content: "";
+}
+
+.window-cross::before {
+  width: 3px;
+  height: 100%;
+  top: 0;
+  left: calc(50% - 1.5px);
+}
+
+.window-cross::after {
+  width: 100%;
+  height: 3px;
+  top: 52%;
+  left: 0;
+}
+
+.window strong {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 2px solid #263437;
+  border-radius: 50%;
+  background: #fdf7e8;
+  box-shadow: 1px 2px 0 rgba(38, 52, 55, 0.3);
+  padding: 0;
+  color: #263437;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+}
+
+/* Ready to open: a gentle warm pulse invites a click. */
+.window:not(.is-locked):not(.is-opened) .window-frame {
+  animation: window-ready 2.4s ease-in-out infinite;
+}
+
+@keyframes window-ready {
+  50% {
+    box-shadow:
+      2px 3px 0 rgba(48, 20, 16, 0.32),
+      0 0 14px 3px rgba(255, 214, 120, 0.75);
+  }
+}
+
+/* Opened: the light comes on. */
+.window.is-opened .window-glow {
+  background: radial-gradient(circle at 50% 60%, #fff3c4, #f6c766 70%);
+  box-shadow: inset 0 0 12px #fff2b6;
+}
+
+.window.is-opened strong {
+  border-color: #7f5239;
+  background: #fff5d6;
+  color: #7f5239;
+}
+
+/* Locked: can't be opened yet. */
+.window.is-locked {
+  cursor: not-allowed;
+}
+
+.window.is-locked strong {
+  opacity: 0.85;
+}
+
+/* Sill with a ridge of snow. */
+.window-sill {
+  position: absolute;
+  z-index: 2;
+  height: 7px;
+  right: -9%;
+  bottom: -6px;
+  left: -9%;
+  border: 2px solid #263437;
+  border-radius: 3px;
+  background: #e9dcc3;
+}
+
+.window-sill::before {
+  position: absolute;
+  height: 7px;
+  top: -7px;
+  right: 8%;
+  left: 5%;
+  border: 2px solid #263437;
+  border-bottom: 0;
+  border-radius: 8px 10px 0 0;
+  background: #f8fbf8;
+  content: "";
+}
+
+/* ---------------------------------------------------------------- door, bushes, snow */
+
+.house-door {
+  position: absolute;
+  z-index: 6;
+  width: 25%;
+  bottom: -8px;
+  left: 37.5%;
+  overflow: visible;
+}
+
+.lantern-glow circle {
+  fill: rgba(255, 214, 120, 0.5);
+  filter: blur(3px);
+  animation: lantern 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes lantern {
+  to {
+    fill: rgba(255, 214, 120, 0.85);
+  }
+}
+
+.house-bush {
+  position: absolute;
+  z-index: 6;
+  width: 30%;
+  bottom: -14px;
+}
+
+.house-bush.is-left {
+  left: -10%;
+}
+
+.house-bush.is-right {
+  right: -10%;
+  transform: scaleX(-1);
+}
+
+/* Smaller bushes tucked behind, between the corners and the door. */
+.house-bush.is-back-left,
+.house-bush.is-back-right {
+  z-index: 6;
+  width: 22%;
+  bottom: -8px;
+}
+
+.house-bush.is-back-left {
+  left: 12%;
+  transform: scaleX(-1);
+}
+
+.house-bush.is-back-right {
+  right: 13%;
+}
+
+.house-bunny,
+.house-raccoon {
+  position: absolute;
+  z-index: 7;
+}
+
+.house-bunny {
+  width: 13%;
+  bottom: -15px;
+  left: 23%;
+}
+
+.house-raccoon {
+  width: 16%;
+  bottom: -16px;
+  right: 17%;
+}
+
+.house-snow {
+  position: absolute;
+  z-index: 5;
+  width: 124%;
+  height: 28px;
+  bottom: -20px;
+  left: -12%;
+  border: 3px solid #263437;
+  border-radius: 50%;
+  background: #f4f8f6;
+  box-shadow: 0 4px 0 rgba(81, 115, 120, 0.22);
+}
+
+/* ---------------------------------------------------------------- small screens */
+
+@media (max-width: 680px) {
+  .house-wrap {
+    width: min(370px, 86vw);
+    margin-top: 22px;
+  }
+
+  .house {
+    padding: 52px 12px 64px;
+  }
+
+  .windows {
+    column-gap: 8px;
+    row-gap: 16px;
+  }
+
+  .window strong {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+    font-size: 0.55rem;
+  }
+
+  .countdown-card {
+    min-height: 56px;
+    top: -26px;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roof-lights > g,
+  .lantern-glow circle,
+  .window-frame {
+    animation: none !important;
+  }
+
+  .window {
+    transition: none;
+  }
+}
