@@ -29,6 +29,29 @@
   overflow: visible;
 }
 
+/* Very faint puffs drifting up and to the right, one every two seconds. */
+.chimney-smoke circle {
+  fill: #e9eef7;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chimney-smoke 8s ease-out infinite;
+}
+
+@keyframes chimney-smoke {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  20% {
+    opacity: 0.22;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(26px, -90px) scale(2.4);
+  }
+}
+
 .roof-lights > g {
   animation: twinkle 1.6s ease-in-out infinite alternate;
 }
@@ -410,6 +433,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .chimney-smoke {
+    display: none;
+  }
+
   .roof-lights > g,
   .lantern-glow circle,
   .window-frame {

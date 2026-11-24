@@ -80,14 +80,15 @@
   pointer-events: none;
 }
 
+/* Each flake is a six-armed snowflake: white, cut out by a snowflake-shaped mask. */
 .snow i {
+  --flake: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 24 24'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath transform='rotate%280%29' d='M0 0V-10M0-6.5L-3-9.5M0-6.5L3-9.5M0-3L-2-5M0-3L2-5'/%3E%3Cpath transform='rotate%2860%29' d='M0 0V-10M0-6.5L-3-9.5M0-6.5L3-9.5M0-3L-2-5M0-3L2-5'/%3E%3Cpath transform='rotate%28120%29' d='M0 0V-10M0-6.5L-3-9.5M0-6.5L3-9.5M0-3L-2-5M0-3L2-5'/%3E%3Cpath transform='rotate%28180%29' d='M0 0V-10M0-6.5L-3-9.5M0-6.5L3-9.5M0-3L-2-5M0-3L2-5'/%3E%3Cpath transform='rotate%28240%29' d='M0 0V-10M0-6.5L-3-9.5M0-6.5L3-9.5M0-3L-2-5M0-3L2-5'/%3E%3Cpath transform='rotate%28300%29' d='M0 0V-10M0-6.5L-3-9.5M0-6.5L3-9.5M0-3L-2-5M0-3L2-5'/%3E%3C/g%3E%3C/svg%3E");
   position: absolute;
-  top: -12px;
+  top: -16px;
   display: block;
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 48% 52% 46% 54%;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 1px 0 rgba(79, 119, 133, 0.25);
+  background: rgba(255, 255, 255, 0.85);
+  -webkit-mask: var(--flake) center / contain no-repeat;
+  mask: var(--flake) center / contain no-repeat;
   animation: snowfall linear infinite;
 }
 
@@ -169,25 +170,26 @@
 
 /* The receiver's name, in the title's script, set left so it clears the chimney. */
 .recipient {
-  max-width: 62%;
-  margin: 0 auto 0 4%;
+  max-width: 90%;
+  margin: 0 auto;
   overflow-wrap: anywhere;
+  text-align: center;
   font-family: "Great Vibes", cursive;
   font-size: clamp(2.8rem, 5vw, 4rem);
   font-weight: 400;
   line-height: 1.1;
 }
 
-/* On the calendar the name hangs below the title, beside the chimney, without
-   pushing the house down. With a line underneath it stays in the flow instead. */
-.scene-header .recipient:last-child {
+/* On the calendar the name hangs centred below the title without pushing the house
+   down. RecipientName slides a long name left of the chimney, or sets it smaller. */
+.scene-header .recipient {
   position: absolute;
   top: calc(100% + 0.1em);
   left: 0;
-  width: 62%;
+  width: 100%;
   max-width: none;
   margin: 0;
-  text-align: center;
+  white-space: nowrap;
 }
 
 .hint {
@@ -822,7 +824,7 @@ button:disabled {
   line-height: 1.4;
 }
 
-.field input:not([type="radio"]),
+.field input:not([type="radio"], [type="checkbox"]),
 .field textarea {
   width: 100%;
   border: 1.5px solid #9aaba8;
@@ -861,6 +863,19 @@ button:disabled {
   border-radius: 6px;
   padding: 10px 12px;
   cursor: pointer;
+}
+
+/* A small single checkbox, like the animal friends' "Yes". */
+.choice.is-compact {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+}
+
+.choice.is-compact input {
+  margin-top: 0;
 }
 
 .choice:has(input:checked) {
