@@ -26,10 +26,16 @@ browser, so you can try it, but links won't work on other devices.
    [supabase/schema.sql](supabase/schema.sql), and press **Run**. This creates the tables, the
    functions, and a `calendar-images` storage bucket. Run it again after pulling changes to
    `schema.sql`: it's safe to re-run and only adds what's missing.
-3. Open **Project Settings → API** (or **Connect**) and copy the **Project URL** and the
+3. Deploy the `picture-links` Edge Function, which gives out 30-day links to pictures in the
+   private bucket: **Edge Functions → Deploy a new function → Via Editor**, name it
+   `picture-links`, paste [supabase/functions/picture-links/index.ts](supabase/functions/picture-links/index.ts),
+   turn off JWT verification in its settings (the app calls it with the publishable key, and the
+   function does its own checks), and deploy. With the Supabase CLI:
+   `supabase functions deploy picture-links --no-verify-jwt`.
+4. Open **Project Settings → API** (or **Connect**) and copy the **Project URL** and the
    **anon / publishable** key. Both are meant to be public, so they're safe in the browser.
-4. Copy `.env.example` to `.env.local` and fill in those two values.
-5. Restart the dev server. The "Demo mode" banner disappears once it's connected.
+5. Copy `.env.example` to `.env.local` and fill in those two values.
+6. Restart the dev server. The "Demo mode" banner disappears once it's connected.
 
 ## Run locally
 

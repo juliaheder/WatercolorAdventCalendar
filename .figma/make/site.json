@@ -6,5 +6,9 @@
   "accessibility": {
     "addBypassLinks": false,
     "ignoreReducedMotion": false
+  },
+  "title": "Advent Calendar",
+  "icons": {
+    "icon": "favicon.png"
   }
 }

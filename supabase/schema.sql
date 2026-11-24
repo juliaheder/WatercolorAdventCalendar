@@ -9,6 +9,8 @@
 --     Every write must present the token, so only someone holding the edit link can change it.
 --   * The share link holds only the calendar id. get_shared_calendar returns the content
 --     of windows whose day has arrived, so the receiver can open doors but not peek or edit.
+--   * Pictures are in a private bucket. Links to them come from the picture-links Edge
+--     Function, last 30 days, and are only given for windows the caller may see.
 
 -- ---------------------------------------------------------------- tables
 
@@ -277,10 +279,12 @@ grant execute on function public.calendar_exists(text) to anon, authenticated;
 
 -- ---------------------------------------------------------------- picture storage
 
--- Public bucket: pictures are served by URL. File names are random, and the URL of a
--- window's picture is only handed out once that window has unlocked.
+-- Private bucket: a picture can't be opened by its plain address. The picture-links Edge
+-- Function (supabase/functions/picture-links) hands out links that last 30 days, and
+-- only for windows the visitor may see: every window with the edit token, otherwise
+-- only windows whose day has arrived.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('calendar-images', 'calendar-images', true, 5242880,
+values ('calendar-images', 'calendar-images', false, 5242880,
         array['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 on conflict (id) do update
 set public = excluded.public,
