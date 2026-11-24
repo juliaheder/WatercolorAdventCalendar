@@ -78,6 +78,21 @@ function friendlyError(error: { message?: string } | null, fallback: string): Er
 }
 
 function supabaseBackend(client: SupabaseClient): Backend {
+  // Pictures live in a private bucket. The picture-links Edge Function gives out links
+  // (valid 30 days) for the windows this visitor may see; they are kept here by path.
+  const links = new Map<string, string>();
+  const fetchLinks = async (body: { calendarId: string; editToken?: string; today?: string }) => {
+    const { data, error } = await client.functions.invoke<{ links: Record<string, string> }>(
+      "picture-links",
+      { body },
+    );
+    if (error || !data) {
+      console.warn("Could not get picture links", error);
+      return;
+    }
+    for (const [path, url] of Object.entries(data.links)) links.set(path, url);
+  };
+
   return {
     kind: "supabase",
 
@@ -95,6 +110,7 @@ function supabaseBackend(client: SupabaseClient): Backend {
       if (error) throw friendlyError(error, "Could not load the calendar.");
       if (!data) throw new Error("This calendar no longer exists.");
       const row = data as CalendarRow;
+      await fetchLinks({ calendarId: id, editToken: token });
       return {
         id: row.id,
         title: row.title,
@@ -141,6 +157,8 @@ function supabaseBackend(client: SupabaseClient): Backend {
         upsert: false,
       });
       if (error) throw friendlyError(error, "Could not upload the picture.");
+      // Show the new picture straight from this device until the next load brings a link.
+      links.set(path, URL.createObjectURL(image));
       return path;
     },
 
@@ -156,6 +174,7 @@ function supabaseBackend(client: SupabaseClient): Backend {
       if (error) throw friendlyError(error, "Could not load the calendar.");
       if (!data) return null;
       const row = data as CalendarRow;
+      await fetchLinks({ calendarId: id, today });
       return {
         id: row.id,
         title: row.title,
@@ -168,7 +187,9 @@ function supabaseBackend(client: SupabaseClient): Backend {
     },
 
     imageUrl(path) {
-      return client.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      // The plain address only works while the bucket is still public (before the
+      // schema update); after that, every picture needs a link from picture-links.
+      return links.get(path) ?? client.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
     },
   };
 }

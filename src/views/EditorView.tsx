@@ -114,7 +114,6 @@ export function EditorView({ id, token }: { id: string; token: string }) {
         <header className="editor-header">
           <p className="kicker">Your advent calendar</p>
           <h1>{meta.title || "Merry Christmas"}</h1>
-          {meta.recipient.trim() && <p className="recipient">{meta.recipient}</p>}
         </header>
 
         <div className="editor-columns">
