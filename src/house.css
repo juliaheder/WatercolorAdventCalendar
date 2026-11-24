@@ -54,7 +54,7 @@
     linear-gradient(98deg, rgba(255, 255, 255, 0.07), transparent 35%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='32'%3E%3Crect width='60' height='32' fill='%23661f1c'/%3E%3Crect x='1' y='1' width='28' height='14' rx='1.5' fill='%238a2f2b'/%3E%3Crect x='31' y='1' width='28' height='14' rx='1.5' fill='%23842c28'/%3E%3Crect x='-14' y='17' width='28' height='14' rx='1.5' fill='%238e322d'/%3E%3Crect x='16' y='17' width='28' height='14' rx='1.5' fill='%23872d29'/%3E%3Crect x='46' y='17' width='28' height='14' rx='1.5' fill='%238e322d'/%3E%3C/svg%3E") 0 0 / 48px 25.6px;
   box-shadow: 7px 9px 0 rgba(38, 52, 55, 0.18);
-  padding: 58px 22px 74px;
+  padding: 58px 19px 74px;
 }
 
 .house-foundation {
@@ -121,7 +121,7 @@
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  column-gap: clamp(12px, 3vw, 20px);
+  column-gap: clamp(10px, 2.6vw, 17px);
   row-gap: clamp(18px, 3vw, 24px);
 }
 
@@ -214,8 +214,8 @@
   position: relative;
   z-index: 3;
   display: grid;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   place-items: center;
   border: 2px solid #263437;
   border-radius: 50%;
@@ -224,7 +224,7 @@
   padding: 0;
   color: #263437;
   font-family: "DM Sans", sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   line-height: 1;
@@ -387,19 +387,19 @@
   }
 
   .house {
-    padding: 52px 14px 64px;
+    padding: 52px 12px 64px;
   }
 
   .windows {
-    column-gap: 10px;
+    column-gap: 8px;
     row-gap: 16px;
   }
 
   .window strong {
-    width: 21px;
-    height: 21px;
+    width: 18px;
+    height: 18px;
     border-width: 1.5px;
-    font-size: 0.6rem;
+    font-size: 0.55rem;
   }
 
   .countdown-card {
