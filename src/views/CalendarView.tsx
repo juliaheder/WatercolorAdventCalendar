@@ -4,7 +4,7 @@ import { getCountdown, localToday, nextUnlockAt } from "../lib/dates";
 import { defaultDays, WinterIllustration } from "../components/winter";
 import { Scene } from "../components/Scene";
 import { SpotifyPlayer } from "../lib/spotify";
-import { Bunny, ChalkDefs, HouseDoor, HouseRoof, Raccoon, SnowyBush } from "../components/House";
+import { Bunny, CarolNotes, ChalkDefs, HouseDoor, HouseRoof, Raccoon, SnowyBush } from "../components/House";
 
 /** What the receiver sees: doors that open one by one. Read-only by design. */
 export function CalendarView({ id }: { id: string }) {
@@ -285,6 +285,7 @@ export function CalendarView({ id }: { id: string }) {
             <>
               <Bunny />
               <Raccoon />
+              <CarolNotes animal="raccoon" />
             </>
           )}
           <div className="house-snow" />
@@ -295,6 +296,7 @@ export function CalendarView({ id }: { id: string }) {
           {available === 0
             ? "The first window opens on 1 December"
             : `${opened.filter((d) => d <= available).length} of ${available} available ${available === 1 ? "window" : "windows"} opened`}
+          <span className="hint-star is-end">✦</span>
         </p>
       </section>
     </Scene>
@@ -325,15 +327,20 @@ function DayPhotos({ urls, alt }: { urls: string[]; alt: string }) {
   );
 }
 
-// The chimney's left edge in the roof drawing (HouseRoof's viewBox is 460 wide).
+// The chimney's left edge in the roof drawing (HouseRoof's viewBox is 460 wide), and
+// the top of the snow on the roof (y 26 in a viewBox that starts at -44 and is 226 tall).
 const CHIMNEY_LEFT = 313 / 460;
+const ROOF_TOP = (26 + 44) / 226;
+const ROOF_GAP = 2;
 const CHIMNEY_GAP = 10;
 const EDGE_GAP = 12;
 
 /**
- * The receiver's name, centred under the title. A name long enough to reach the
- * chimney slides left to clear it, and one too wide for the space beside the chimney
- * is set smaller so it stays on one line.
+ * The receiver's name, centred under the title, never covering the roof: if it would
+ * reach down onto the roof it is set up to a quarter smaller, and if that's not enough
+ * the house moves down just far enough. A name long enough to reach the chimney slides
+ * left to clear it, and one too wide for the space beside the chimney is set smaller
+ * so it stays on one line.
  */
 function RecipientName({ name }: { name: string }) {
   const lineRef = useRef<HTMLParagraphElement>(null);
@@ -346,18 +353,24 @@ function RecipientName({ name }: { name: string }) {
       const roof = document.querySelector(".house-roof");
       if (!line || !text || !roof) return;
 
+      const wrap = roof.parentElement as HTMLElement;
       line.style.transform = "";
       line.style.fontSize = "";
+      wrap.style.paddingTop = "";
       const roofBox = roof.getBoundingClientRect();
       const chimneyLeft = roofBox.left + roofBox.width * CHIMNEY_LEFT - CHIMNEY_GAP;
+      const roofTop = roofBox.top + roofBox.height * ROOF_TOP - ROOF_GAP;
       const room = chimneyLeft - EDGE_GAP;
+      const shrink = (factor: number) => {
+        const size = parseFloat(getComputedStyle(line).fontSize);
+        line.style.fontSize = `${Math.floor(size * factor)}px`;
+        return text.getBoundingClientRect();
+      };
 
       let box = text.getBoundingClientRect();
-      if (box.width > room) {
-        const size = parseFloat(getComputedStyle(line).fontSize);
-        line.style.fontSize = `${Math.floor((size * room) / box.width)}px`;
-        box = text.getBoundingClientRect();
-      }
+      if (box.bottom > roofTop) box = shrink(Math.max(0.75, (roofTop - box.top) / box.height));
+      if (box.bottom > roofTop) wrap.style.paddingTop = `${Math.ceil(box.bottom - roofTop)}px`;
+      if (box.width > room) box = shrink(room / box.width);
       if (box.right > chimneyLeft) {
         const shift = Math.max(chimneyLeft - box.right, EDGE_GAP - box.left);
         line.style.transform = `translateX(${shift}px)`;

@@ -85,7 +85,14 @@ export function HouseRoof() {
 
         {/* Eave board. */}
         <rect x="2" y="142" width="456" height="16" rx="6" fill="#e9dcc3" stroke="#263437" strokeWidth="4" />
-        <path d="M4 144q40-7 80-1t80 0 80-1 80 1 80-1 70 1" fill="none" stroke="#f8fbf8" strokeWidth="5" strokeLinecap="round" />
+        {/* Snow along the eave, lumpy on top and dripping over the board, like the top cap. */}
+        <path
+          d="M2 146c-2-6 2-10 8-9q15 -4 30 0q11 -4 22 1q11 -5 22 1q11 -6 22 -1q11 -4 22 0q17 -4 34 -1q11 -6 22 0q11 -6 22 -1q13 -6 26 1q11 -6 22 1q17 -4 34 -1q11 -6 22 -1q15 -5 30 -1q11 -6 22 0q13 -4 26 1q13 -5 26 -1q11 -6 22 -1q6 -5 12 1c6-1 10 3 8 9c-4.8 12-19.2 12-24 0c-4 12-16 12-20 0c-4.8 12-19.2 12-24 0c-4 10-16 10-20 0c-3.6 8-14.4 8-18 0c-3.6 6-14.4 6-18 0c-4.8 10-19.2 10-24 0c-4.8 12-19.2 12-24 0c-4 12-16 12-20 0c-4 6-16 6-20 0c-3.2 12-12.8 12-16 0c-3.6 10-14.4 10-18 0c-3.6 12-14.4 12-18 0c-4.4 6-17.6 6-22 0c-3.2 10-12.8 10-16 0c-4 10-16 10-20 0c-4.8 12-19.2 12-24 0c-4.8 12-19.2 12-24 0c-3.2 6-12.8 6-16 0c-4 12-16 12-20 0c-3.2 6-12.8 6-16 0c-4 12-16 12-20 0c-2.4 12-9.6 12-12 0z"
+          fill="#f8fbf8"
+          stroke="#263437"
+          strokeWidth="3.5"
+          strokeLinejoin="round"
+        />
 
 
         {/* String of lights. */}
@@ -112,6 +119,12 @@ export function HouseRoof() {
         <path d="M386 66l10 22M402 100l7 16" />
         <path d="M326-16v12M326 6v8" strokeWidth="2.4" />
         <path d="M150 64q6-4 12 0M260 92q6-4 12 0M110 118q6-4 12 0M318 124q6-4 12 0" strokeWidth="2.2" />
+        {/* Dusty chalk on the eave snow and its drips. */}
+        <path
+          d="M16 141q18-5 36-1M64 140q20-5 40-1M118 141q16-4 32 0M314 140q20-5 40-1M366 141q18-4 36 0M414 140q16-4 32 1"
+          strokeWidth="2.6"
+        />
+        <path d="M30 148v3M96 149v4M150 148v3M322 149v4M378 148v3M436 149v3" strokeWidth="2" />
       </g>
     </svg>
   );
@@ -246,5 +259,45 @@ export function Raccoon() {
         <circle cx="67" cy="10" r="4.5" fill="#f8fbf8" />
       </g>
     </svg>
+  );
+}
+
+/** A single eighth note, or two beamed ones. */
+function MusicNote({ beamed = false }: { beamed?: boolean }) {
+  return (
+    <svg viewBox="0 0 26 26" aria-hidden="true" focusable="false">
+      <g fill="#fdf7e8" stroke="#263437" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+        {beamed ? (
+          <>
+            <path d="M8 21V6l14-3v15" fill="none" />
+            <path d="M8 9l14-3" strokeWidth="3" />
+            <ellipse cx="5" cy="21" rx="4" ry="3" transform="rotate(-20 5 21)" />
+            <ellipse cx="19" cy="18" rx="4" ry="3" transform="rotate(-20 19 18)" />
+          </>
+        ) : (
+          <>
+            <path d="M13 21V3c4 1 7 4 7 9" fill="none" />
+            <ellipse cx="10" cy="21" rx="4.2" ry="3.1" transform="rotate(-20 10 21)" />
+          </>
+        )}
+      </g>
+    </svg>
+  );
+}
+
+/** Notes rising from an animal's head, as if it's singing carols. Sits over the animal. */
+export function CarolNotes({ animal }: { animal: "raccoon" }) {
+  return (
+    <div className={`carol-notes is-${animal}`} aria-hidden="true">
+      <span className="carol-note is-first">
+        <MusicNote />
+      </span>
+      <span className="carol-note is-second">
+        <MusicNote beamed />
+      </span>
+      <span className="carol-note is-third">
+        <MusicNote />
+      </span>
+    </div>
   );
 }
