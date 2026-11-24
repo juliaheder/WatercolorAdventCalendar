@@ -22,6 +22,22 @@
         "--strictPort"
       ],
       "port": 8444
+    },
+    {
+      "name": "calendar-pages-build",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "FIGMA_PUBLIC_URL=/WatercolorAdventCalendar",
+        "PORT=8445",
+        "/home/julia/.local/node/bin/node",
+        "node_modules/vite/bin/vite.js",
+        "preview",
+        "--host",
+        "127.0.0.1",
+        "--strictPort"
+      ],
+      "port": 8445,
+      "url": "http://localhost:8445"
     }
   ]
 }
