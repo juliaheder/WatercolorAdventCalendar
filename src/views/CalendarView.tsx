@@ -304,25 +304,23 @@ export function CalendarView({ id }: { id: string }) {
 }
 
 /**
- * A window's pictures. Two are laid out together as a collage of tilted prints;
- * tapping one brings it to the front.
+ * A window's pictures. Two are laid out side by side (or one above the other when
+ * the space is tall) as slightly tilted prints, each in its own half so they never overlap.
  */
 function DayPhotos({ urls, alt }: { urls: string[]; alt: string }) {
-  const [front, setFront] = useState(1);
   if (urls.length === 1) return <img className="day-photo" src={urls[0]} alt={alt} />;
 
   return (
     <div className="photo-collage">
-      {urls.map((url, index) => (
-        <button
-          key={url}
-          className={`collage-print is-print-${index + 1} ${index === front ? "is-front" : ""}`}
-          onClick={() => setFront(index)}
-          aria-label={`Bring picture ${index + 1} to the front`}
-        >
-          <img src={url} alt={`${alt} (picture ${index + 1} of ${urls.length})`} />
-        </button>
-      ))}
+      <div className="collage-grid">
+        {urls.map((url, index) => (
+          <div key={url} className="collage-slot">
+            <figure className={`collage-print is-print-${index + 1}`}>
+              <img src={url} alt={`${alt} (picture ${index + 1} of ${urls.length})`} />
+            </figure>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -331,7 +329,7 @@ function DayPhotos({ urls, alt }: { urls: string[]; alt: string }) {
 // the top of the snow on the roof (y 26 in a viewBox that starts at -44 and is 226 tall).
 const CHIMNEY_LEFT = 313 / 460;
 const ROOF_TOP = (26 + 44) / 226;
-const ROOF_GAP = 2;
+const ROOF_GAP = 10;
 const CHIMNEY_GAP = 10;
 const EDGE_GAP = 12;
 

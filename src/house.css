@@ -13,7 +13,7 @@
   /* Sized so the whole house fits on a laptop screen. */
   width: min(400px, 88vw, calc((100vh - 300px) * 0.62));
   min-width: min(290px, 88vw);
-  margin-top: 12px;
+  margin-top: 20px;
   margin-bottom: 18px;
 }
 
@@ -568,7 +568,7 @@
 @media (max-width: 680px) {
   .house-wrap {
     width: min(370px, 86vw);
-    margin-top: 22px;
+    margin-top: 30px;
   }
 
   .house {
