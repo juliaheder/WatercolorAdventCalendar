@@ -491,6 +491,12 @@
   }
 }
 
+/* Two portrait pictures always sit side by side. */
+.is-both-portrait .collage-grid {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
 .collage-slot {
   display: grid;
   min-width: 0;

@@ -304,19 +304,35 @@ export function CalendarView({ id }: { id: string }) {
 }
 
 /**
- * A window's pictures. Two are laid out side by side (or one above the other when
- * the space is tall) as slightly tilted prints, each in its own half so they never overlap.
+ * A window's pictures. Two are laid out as slightly tilted prints, each in its own half so
+ * they never overlap: one above the other when the space is tall, side by side when it is
+ * wide or when both pictures are portrait.
  */
 function DayPhotos({ urls, alt }: { urls: string[]; alt: string }) {
+  // Which pictures are taller than wide, once loaded. Two of those go side by side.
+  const [portrait, setPortrait] = useState<boolean[]>([]);
   if (urls.length === 1) return <img className="day-photo" src={urls[0]} alt={alt} />;
 
+  const bothPortrait = urls.every((_, index) => portrait[index]);
+
   return (
-    <div className="photo-collage">
+    <div className={`photo-collage ${bothPortrait ? "is-both-portrait" : ""}`}>
       <div className="collage-grid">
         {urls.map((url, index) => (
           <div key={url} className="collage-slot">
             <figure className={`collage-print is-print-${index + 1}`}>
-              <img src={url} alt={`${alt} (picture ${index + 1} of ${urls.length})`} />
+              <img
+                src={url}
+                alt={`${alt} (picture ${index + 1} of ${urls.length})`}
+                onLoad={(event) => {
+                  const { naturalWidth, naturalHeight } = event.currentTarget;
+                  setPortrait((current) => {
+                    const next = [...current];
+                    next[index] = naturalHeight > naturalWidth;
+                    return next;
+                  });
+                }}
+              />
             </figure>
           </div>
         ))}
