@@ -467,66 +467,66 @@
   margin-bottom: 34px;
 }
 
-/* Two pictures sit together like prints laid on the card, slightly overlapping. */
+/* Two pictures sit together like prints laid on the card, each in its own half so
+   neither covers the other. Tall spaces stack them; wide spaces put them side by side. */
 .photo-collage {
   position: absolute;
   z-index: 2;
   inset: 0;
+  container-type: size;
+  padding: 60px 12px 14px;
+}
+
+.collage-grid {
+  display: grid;
+  height: 100%;
+  gap: 12px;
+  grid-template-rows: 1fr 1fr;
+}
+
+@container (min-aspect-ratio: 1 / 1) {
+  .collage-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.collage-slot {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  container-type: size;
 }
 
 .collage-print {
-  position: absolute;
   display: flex;
-  max-width: 72%;
-  max-height: 62%;
-  border: 0;
+  margin: 0;
   background: #fffdf8;
   box-shadow: 4px 6px 0 rgba(54, 86, 94, 0.2);
-  cursor: pointer;
-  padding: 7px 7px 20px;
-  transition: transform 0.25s ease;
+  padding: 4px 4px 10px;
 }
 
+/* Fit the photo plus its paper border (4px sides, 10px bottom) inside its half,
+   leaving a little room for the tilt and shadow. */
 .collage-print img {
   display: block;
-  min-width: 0;
-  max-width: 100%;
-  max-height: 100%;
+  max-width: calc(100cqw - 14px);
+  max-height: calc(100cqh - 20px);
   object-fit: contain;
 }
 
 .collage-print.is-print-1 {
-  z-index: 1;
-  top: 13%;
-  left: 7%;
-  transform: rotate(-4deg);
+  transform: rotate(-1.5deg);
 }
 
 .collage-print.is-print-2 {
-  z-index: 1;
-  right: 6%;
-  bottom: 7%;
-  transform: rotate(3.5deg);
-}
-
-.collage-print.is-front {
-  z-index: 2;
+  transform: rotate(1.5deg);
 }
 
 @media (max-width: 680px) {
   .day-illustration:has(.photo-collage) {
     min-height: 420px;
-  }
-}
-
-.collage-print:hover,
-.collage-print:focus-visible {
-  transform: rotate(0deg) scale(1.02);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .collage-print {
-    transition: none;
   }
 }
 
